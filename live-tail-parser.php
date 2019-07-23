@@ -17,7 +17,7 @@ $result = "";
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['logs'])) {
         $logs = $_POST['logs'];
-        $pattern = "/^(\d*|\s)*X-Forwarded-For:\s*\d+\.\d+\.\d+\.\d+,\s*X-Real-IP:\s*\d+\.\d+\.\d+\.\d+\s*\]\s*(\{.+\})/i";
+        $pattern = "/^\[ X-Forwarded-For:\s*\d+\.\d+\.\d+\.\d+,\s*X-Real-IP:\s*\d+\.\d+\.\d+\.\d+\s*\]\s*(\{.+\})/i";
         $lines = explode(PHP_EOL, $logs);
         $i = 0;
         $data = array();
@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Parse input
         foreach($lines as $line) {
             preg_match($pattern, $line, $matches);
-            $json_str = $matches[2];
+            $json_str = $matches[1];
             $json = json_decode($json_str, true);
             if (is_array($json)) {
                 $json['source'] = $line;
