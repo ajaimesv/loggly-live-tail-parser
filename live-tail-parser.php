@@ -84,8 +84,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $result .= "<tr>";
             $result .= '<td><span class="'.$color.'">' . htmlspecialchars($json["level"]) . "</span></td>"; 
             $result .= "<td>" . $fdate . "</td>"; 
-            $result .= "<td>" . $json["logger_name"] . $small . "</td>"; 
-            $result .= '<td class="breakable">' . htmlspecialchars($json["message"]) . '<p><a href="#" onclick="$(\'#fullentry' . $i . '\').slideToggle();return false;">Show/hide full entry</a></p><div id="fullentry' . $i . '" style="display:none">' . htmlspecialchars($json['source']) . '</div></td>';
+            $result .= '<td class="breakable">' . $json["logger_name"] . $small . '</td>';
+            $message = "";
+            $json_msg = json_decode($json["message"], true);
+            if (is_array($json_msg)) {
+                $message = '<div><pre><code class="json">' . htmlspecialchars(json_encode($json_msg, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)) . '</code></pre></div>';
+            } else $message = htmlspecialchars($json["message"]);
+            $result .= '<td class="breakable">' . $message . '<p><a href="#" onclick="$(\'#fullentry' . $i . '\').slideToggle();return false;">Show/hide full entry</a></p><div id="fullentry' . $i . '" style="display:none">' . htmlspecialchars($json['source']) . '</div></td>';
             $result .= "<tr>";
             $i++;
         }
@@ -101,6 +106,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
     <title>Loggly logs</title>
     <style>
+        table.results {
+            table-layout: fixed;
+            width: 100%;
+        }
+        th.level { width: 8%; }
+        th.date { width: 15%; }
+        th.logger { width: 35%; }
         td, th {
           font-size: 0.9rem;          
         }
@@ -111,7 +123,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 
 <body>
-    <div class="container">
+    <div class="container-fluid">
         <h1>Clean up Live Tail Loggly logs</h1>
         <form method="post">
             <div class="form-group">
@@ -125,11 +137,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div>
                 <h2>Results</h2>
                 <p>Sorted by timestamp, newest at the top. If a line cannot be parsed, it will display PARSE on the Level colum.</p>
-                <table class="table table-striped">
+                <table class="table table-striped results">
                     <thead><tr>
-                        <th>Level</th>
-                        <th>Timestamp</th>
-                        <th>Logger name</th>
+                        <th class="level">Level</th>
+                        <th class="date">Timestamp</th>
+                        <th class="logger">Logger name</th>
                         <th>Message</th>
                     </tr></thead>
                     <tbody><?php echo $result; ?></tbody>
