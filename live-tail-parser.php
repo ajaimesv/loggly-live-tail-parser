@@ -17,27 +17,30 @@ $result = "";
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['logs'])) {
         $logs = $_POST['logs'];
-        $pattern = "/^.*X-Forwarded-For:\s*\d+\.\d+\.\d+\.\d+,\s*X-Real-IP:\s*\d+\.\d+\.\d+\.\d+\s*\]\s*(\{.+\})/i";
+        $pattern = "/^.*?X-Forwarded-For:\s*\d+\.\d+\.\d+\.\d+,\s*X-Real-IP:\s*\d+\.\d+\.\d+\.\d+\s*\]\s*(\{.+\})/i";
         $lines = explode(PHP_EOL, $logs);
         $i = 0;
         $data = array();
 
         // Parse input
         foreach($lines as $line) {
-            preg_match($pattern, $line, $matches);
-            $json_str = $matches[1];
-            $json = json_decode($json_str, true);
-            if (is_array($json)) {
-                $json['source'] = $line;
-                array_push($data, $json);
-            } else {
-                // Create an entry for parsing errors
-                $parse_error = array();
-                $parse_error['message']   = 'Unparsable line';
-                $parse_error['timestamp'] = '';
-                $parse_error['level']   = 'PARSE';
-                $parse_error['source']  = $line;
-                array_push($data, $parse_error);
+            $text = trim($line);
+            if (strlen($text) > 0) {
+                preg_match($pattern, $text, $matches);
+                $json_str = $matches[1];
+                $json = json_decode($json_str, true);
+                if (is_array($json)) {
+                    $json['source'] = $text;
+                    array_push($data, $json);
+                } else {
+                    // Create an entry for parsing errors
+                    $parse_error = array();
+                    $parse_error['message']   = 'Unparsable line';
+                    $parse_error['timestamp'] = '';
+                    $parse_error['level']   = 'PARSE';
+                    $parse_error['source']  = $text;
+                    array_push($data, $parse_error);
+                }
             }
         }
 
