@@ -17,7 +17,7 @@ $result = "";
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['logs'])) {
         $logs = $_POST['logs'];
-        $pattern = "/^\.*X-Forwarded-For:\s*\d+\.\d+\.\d+\.\d+,\s*X-Real-IP:\s*\d+\.\d+\.\d+\.\d+\s*\]\s*(\{.+\})/i";
+        $pattern = "/^.*X-Forwarded-For:\s*\d+\.\d+\.\d+\.\d+,\s*X-Real-IP:\s*\d+\.\d+\.\d+\.\d+\s*\]\s*(\{.+\})/i";
         $lines = explode(PHP_EOL, $logs);
         $i = 0;
         $data = array();
